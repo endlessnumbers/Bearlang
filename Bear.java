@@ -9,6 +9,8 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class Bear {
+
+    public static boolean hadError = false;
     public static void main(String[] args) {
         //more than one argument -- invalid
         //this terminates and returns error code 64,
@@ -32,6 +34,10 @@ public class Bear {
     private static void runFile(String path) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         run(new String(bytes, Charset.defaultCharset()));
+
+        //error code incorrect data
+        if (hadError)
+            System.exit(65);
     }
 
     //run repl
@@ -44,6 +50,8 @@ public class Bear {
         for (;;){
             System.out.print("> ");
             run(reader.readLine());
+            //reset error flag so an error doesn't kill repl
+            hadError = false;
         }        
     }
 
@@ -56,5 +64,18 @@ public class Bear {
         for (Token token : tokens) {
             System.out.println(token);
         }
+    }
+
+    public static void error(int line, String message) {
+        report(line, "", message);
+    }
+
+    //error reporting, tells user the line number (bare minimum!),
+    //This is very basic so definitely a place to improve upon!!
+    private static void report(int line, String location, String message) {
+        System.err.println(
+            "[line " + line + "] Error" + location + ": " + message
+        );
+        hadError = true;
     }
 }
